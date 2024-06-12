@@ -19,6 +19,7 @@ func consulRegister() {
 	client, err := consulapi.NewClient(config)
 	if err != nil {
 		fmt.Println("consul client error : ", err)
+		return
 	}
 
 	// 创建注册到 consul 的服务到
