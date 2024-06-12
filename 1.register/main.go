@@ -13,33 +13,30 @@ const (
 )
 
 func consulRegister() {
-	// 创建连接 consul 服务配置
-	config := consulapi.DefaultConfig()
-	config.Address = consulAddress
-	client, err := consulapi.NewClient(config)
+	// 获得一个 consul 客户端
+	client, err := consulapi.NewClient(&consulapi.Config{Address: consulAddress})
 	if err != nil {
 		fmt.Println("consul client error : ", err)
 		return
 	}
 
-	// 创建注册到 consul 的服务到
-	registration := new(consulapi.AgentServiceRegistration)
-	registration.ID = "337"
-	registration.Name = "service337"
-	registration.Port = localPort
-	registration.Tags = []string{"testService"}
-	registration.Address = localIp
+	// 创建注册到 consul 的服务
+	service := &consulapi.AgentServiceRegistration{
+		ID:      "337",
+		Name:    "service337",
+		Tags:    []string{"testService"},
+		Port:    localPort,
+		Address: localIp,
+		Check: &consulapi.AgentServiceCheck{
+			Interval:                       "5s",
+			Timeout:                        "5s",
+			HTTP:                           fmt.Sprintf("http://%s:%d/", localIp, localPort),
+			DeregisterCriticalServiceAfter: "30s", // 故障检查失败 30s 后 consul自动将注册服务删除
+		},
+	}
 
-	// 增加 consul 健康检查回调函数
-	check := new(consulapi.AgentServiceCheck)
-	check.HTTP = fmt.Sprintf("http://%s:%d", registration.Address, registration.Port)
-	check.Timeout = "5s"
-	check.Interval = "5s"
-	check.DeregisterCriticalServiceAfter = "30s" // 故障检查失败30s后 consul自动将注册服务删除
-	registration.Check = check
-
-	// 注册服务到consul
-	err = client.Agent().ServiceRegister(registration)
+	// 注册服务到 consul
+	err = client.Agent().ServiceRegister(service)
 }
 
 func Handler(w http.ResponseWriter, r *http.Request) {
@@ -51,7 +48,7 @@ func main() {
 
 	//定义一个 http 接口
 	http.HandleFunc("/", Handler)
-	err := http.ListenAndServe("0.0.0.0:81", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", localPort), nil)
 	if err != nil {
 		fmt.Println("error: ", err.Error())
 	}
