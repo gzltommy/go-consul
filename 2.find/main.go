@@ -29,7 +29,7 @@ func ConsulFindServer() {
 	fmt.Println(service.Address)
 	fmt.Println(service.Port)
 
-	//只获取健康的 service
+	// 只获取健康的 service
 	serviceHealthy, _, err := client.Health().Service("service337", "", true, nil)
 	if err != nil {
 		fmt.Println("Health().Service fail", err)
