@@ -18,6 +18,10 @@ import (
 // nodes：节点
 // keyprefix：指定前缀的一批键值
 
+const (
+	consulAgentAddress = "127.0.0.1:8500"
+)
+
 func main() {
 	//watchKey()
 	//watchServices()
@@ -53,7 +57,7 @@ func watchKey() {
 		fmt.Printf("\n 数据变化 idx:%d, [key:%s] -> v:%s", idx, v.Key, string(v.Value))
 	}
 
-	if err = plan.Run("192.168.24.147:8500"); err != nil {
+	if err = plan.Run(consulAgentAddress); err != nil {
 		fmt.Printf("\n Run error: %v", err)
 		return
 	}
@@ -81,7 +85,7 @@ func watchServices() {
 		}
 	}
 
-	if err = plan.Run("192.168.24.147:8500"); err != nil {
+	if err = plan.Run(consulAgentAddress); err != nil {
 		fmt.Printf("\n Run error: %v", err)
 		return
 	}
@@ -113,7 +117,7 @@ func watchServer() {
 		}
 	}
 
-	if err = plan.Run("192.168.24.147:8500"); err != nil {
+	if err = plan.Run(consulAgentAddress); err != nil {
 		fmt.Printf("\n Run error: %v", err)
 		return
 	}
