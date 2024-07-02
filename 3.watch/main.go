@@ -23,9 +23,9 @@ const (
 )
 
 func main() {
-	//watchKey()
+	watchKey()
 	//watchServices()
-	watchServer()
+	//watchServer()
 }
 
 func watchKey() {
