@@ -8,8 +8,9 @@ import (
 
 const (
 	consulAgentAddress = "127.0.0.1:8500"
-	localIp            = "192.168.3.9"
-	localPort          = 81
+	//localIp            = "172.30.128.1"
+	localIp   = "172.30.134.7" // 注意：请使用 linux 運行
+	localPort = 8005
 )
 
 func consulRegister() {
@@ -27,12 +28,12 @@ func consulRegister() {
 		Tags:    []string{"testService"},
 		Port:    localPort,
 		Address: localIp,
-		//Check: &api.AgentServiceCheck{
-		//	Interval:                       "5s",
-		//	Timeout:                        "5s",
-		//	HTTP:                           fmt.Sprintf("http://%s:%d/", localIp, localPort),
-		//	DeregisterCriticalServiceAfter: "30s", // 故障检查失败 30s 后 consul自动将注册服务删除
-		//},
+		Check: &api.AgentServiceCheck{
+			Interval:                       "5s",
+			Timeout:                        "30s",
+			HTTP:                           fmt.Sprintf("http://%s:%d/", localIp, localPort),
+			DeregisterCriticalServiceAfter: "40s", // 故障检查失败 30s 后 consul自动将注册服务删除
+		},
 	}
 
 	// 注册服务到 consul
