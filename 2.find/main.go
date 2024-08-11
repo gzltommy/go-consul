@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	api "github.com/hashicorp/consul/api"
-	"time"
 )
 
 const (
@@ -19,27 +18,56 @@ func ConsulFindServer() {
 		return
 	}
 
-	// 获取指定 service
-	service, _, err := client.Agent().Service("337", nil)
-	if err != nil {
-		fmt.Println("Agent().Service fail", err)
-		return
+	// 获取指定 ID service
+	//{
+	//	service, _, err := client.Agent().Service("337", nil)
+	//	if err != nil {
+	//		fmt.Println("Agent().Service fail", err)
+	//		return
+	//	}
+	//
+	//	fmt.Println(service.Address)
+	//	fmt.Println(service.Port)
+	//}
+
+	// 获取指定服务的所有健康的节点 server
+	{
+		serviceHealthy, _, err := client.Health().Service("hello-server", "", true, nil)
+		if err != nil {
+			fmt.Println("Health().Service fail", err)
+			return
+		}
+		for _, v := range serviceHealthy {
+			fmt.Printf("health server:%s:%d\n", v.Service.Address, v.Service.Port)
+		}
 	}
 
-	fmt.Println(service.Address)
-	fmt.Println(service.Port)
-
-	// 只获取健康的 service
-	serviceHealthy, _, err := client.Health().Service("service337", "", true, nil)
-	if err != nil {
-		fmt.Println("Health().Service fail", err)
-		return
+	// 获取指定服务的所有的节点 server
+	{
+		allServer, _, err := client.Catalog().Service("hello-server", "", nil)
+		if err != nil {
+			fmt.Println("Catalog().Service fail", err)
+			return
+		}
+		for _, v := range allServer {
+			fmt.Printf("server: %s:%d\n", v.ServiceAddress, v.ServicePort)
+		}
 	}
-	fmt.Println(serviceHealthy[0].Service.Address)
-	fmt.Println(serviceHealthy[0].Service.Port)
+
+	// 获取 consul 上的所有 server
+	{
+		allServer, err := client.Agent().Services()
+		if err != nil {
+			fmt.Println("Agent().Services fail", err)
+			return
+		}
+		for _, v := range allServer {
+			fmt.Printf("%s: %s:%d\n", v.Service, v.Address, v.Port)
+		}
+	}
+
 }
 
 func main() {
 	ConsulFindServer()
-	time.Sleep(time.Hour)
 }
