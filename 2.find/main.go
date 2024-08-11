@@ -70,8 +70,8 @@ func ConsulFindServer() {
 			fmt.Println("Agent().Services fail", err)
 			return
 		}
-		for name, tags := range allServer {
-			fmt.Printf("%s:%v\n", name, tags)
+		for serverName, tags := range allServer {
+			fmt.Printf("%s:%v\n", serverName, tags)
 		}
 	}
 

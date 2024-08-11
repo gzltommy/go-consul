@@ -12,11 +12,11 @@ import (
 //	3）运行 Plan
 
 // watch 类型:
-// services：所有服务
-// service：单个服务
-// key：单个键值
-// nodes：节点
-// keyprefix：指定前缀的一批键值
+//  *   services：所有服务
+//  *   service：单个服务
+//  *   key：单个键值
+//  *   nodes：节点
+//  *   keyprefix：指定前缀的一批键值
 
 const (
 	consulAgentAddress = "127.0.0.1:8500"
@@ -33,7 +33,7 @@ func watchKey() {
 		"type":       "key",
 		"datacenter": "dc1",
 		//"token":      "12345",
-		"key": "config",
+		"key": "config/mysql",
 	}
 	plan, err := watch.Parse(params)
 	if err != nil {
@@ -80,8 +80,8 @@ func watchServices() {
 
 	plan.Handler = func(idx uint64, data interface{}) {
 		services := data.(map[string][]string)
-		for k, v := range services {
-			fmt.Printf("\n %s:%+v", k, v)
+		for serverName, tags := range services {
+			fmt.Printf("\n %s:%+v", serverName, tags)
 		}
 	}
 
@@ -94,7 +94,7 @@ func watchServices() {
 func watchServer() {
 	params := map[string]interface{}{
 		"type":       "service",
-		"service":    "service337",
+		"service":    "hello-server",
 		"datacenter": "dc1",
 	}
 	plan, err := watch.Parse(params)
@@ -109,11 +109,11 @@ func watchServer() {
 
 	plan.Handler = func(idx uint64, data interface{}) {
 		services := data.([]*api.ServiceEntry)
-		for _, v := range services {
+		for _, server := range services {
 			// 这里是单个 service 变化时需要做的逻辑，可以自己添加，或在外部写一个类似handler的函数传进来
-			fmt.Printf("\n service %s 已变化", v.Service.Service)
+			fmt.Printf("\n service %s 已变化", server.Service.Service)
 			// 打印 service 的状态
-			fmt.Println("\n service status: ", v.Checks.AggregatedStatus())
+			fmt.Println("\n service status: ", server.Checks.AggregatedStatus())
 		}
 	}
 
